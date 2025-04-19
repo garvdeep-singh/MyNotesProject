@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My College Notes</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>📚 My College Notes</h1>
+
+  <div id="authSection">
+    <!-- <button id="googleSignInBtn">Sign in with Google</button> -->
+    <!-- <p id="authMessage"></p> -->
+     <!-- Email Sign In Form -->
+<h2>Sign In with Email</h2>
+<form id="emailSigninForm">
+  <input type="email" id="email" placeholder="Enter Email" required />
+  <input type="password" id="password" placeholder="Enter Password" required />
+  <button type="submit">Sign In</button>
+</form>
+
+<!-- Google Sign In Button -->
+<h2>Or Sign In with Google</h2>
+<button id="googleSignInBtn">Sign In with Google</button>
+
+  </div>
+
+  <div id="notesSection" style="display: none;">
+    <p>Welcome! Click on any note to view or download:</p>
+    <ul>
+      <li><a href="notes/math1.pdf" target="_blank">Math - Limits</a></li>
+      <li><a href="notes/physics1.pdf" target="_blank">Physics - Motion</a></li>
+      <li><a href="notes/chemistry1.pdf" target="_blank">Chemistry - Reactions</a></li>
+    </ul>
+    <button id="signOutBtn">Sign Out</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { firebaseConfig } from './firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    const signInBtn = document.getElementById('googleSignInBtn');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const authMessage = document.getElementById('authMessage');
+    const authSection = document.getElementById('authSection');
+    const notesSection = document.getElementById('notesSection');
+
+    signInBtn.addEventListener('click', async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        if (user.email.endsWith('@nitj.ac.in')) {
+          authMessage.textContent = '';
+          authSection.style.display = 'none';
+          notesSection.style.display = 'block';
+        } else {
+          authMessage.textContent = 'Access denied: use a valid @nitj.ac.in email.';
+          await signOut(auth);
+        }
+
+      } catch (error) {
+        console.error('Sign-in error:', error);
+        authMessage.textContent = 'Something went wrong during sign-in.';
+      }
+    });
+
+    signOutBtn.addEventListener('click', () => {
+      signOut(auth).then(() => {
+        notesSection.style.display = 'none';
+        authSection.style.display = 'block';
+        authMessage.textContent = '';
+      });
+    });
+  </script>
+</body>
+</html>
